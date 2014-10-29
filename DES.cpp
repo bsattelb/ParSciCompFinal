@@ -149,7 +149,7 @@ F(bool* R[], bool* key[]) {
 	}
 	
 }
-
+// This is the same as decrypt with the key schedule reversed
 void encrypt(bool* L[], bool* R[], bool* key[]) {
 	bool** subkeys = new bool*[16];
 	for (int i = 0; i < 16; ++i) {
