@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <fstream>
-#include <iostream>
+#include <cmath>
 #include "fileAndConversion.h"
 
 
-void generateLR(bool* L[], bool* R[], char* text[]) {
+void generateLR(bool* L, bool* R, char* text) {
 	for (int i = 0; i < 4; ++i) {
+		cout << int(text[i]) << text[i] << endl;;
 		L[i + 0] = text[i] & 128;
 		L[i + 1] = text[i] & 64;
 		L[i + 2] = text[i] & 32;
@@ -26,7 +27,7 @@ void generateLR(bool* L[], bool* R[], char* text[]) {
 	}
 }
 
-void generateText(bool* L[], bool* R[], char* text[]) {
+void generateText(bool* L, bool* R, char* text) {
 	for (int i = 0; i < 8; ++i) {
 		// Use the values in L and R to generate characters
 		int cha = 0;
@@ -43,21 +44,21 @@ void generateText(bool* L[], bool* R[], char* text[]) {
 	}
 }
 
-void readIn(char* [] text, ifstream* file) {
+void readIn(char* text, ifstream* file) {
 	// Initialize every element to the null character
 	// So that we can know when the end is reached
 	for (int i = 0; i < 8; ++i) {
 		text[i] = '\0';
 	}
 	// Read in eight characters
-	file.read(text[0], 8);
+	file->read(text, 8);
 }
 
-writeOut(char* [] text, ofstream outFile) {
+void writeOut(char* text, ofstream* outFile) {
 	for (int i = 0; i < 8; ++i) {
 		// Don't output the null character
 		if (text[i] != '\0') {
-			outFile.put(text[i]);
+			outFile->put(text[i]);
 		}
 	}
 }

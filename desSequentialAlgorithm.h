@@ -99,8 +99,8 @@ static int PC2_index[48] = {
 static int keyShifts[16] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
 
 
-void generateSubkey(bool* key[], int keyNum, bool* subKey[]);
-void IP(bool* L[], bool* R[]);
-void FP(bool* L[], bool* R[]);
-F(bool* R[], bool* key[]);
-void applyDES(bool* L[], bool* R[], bool* key[], bool isEncryption);
+void generateSubkey(bool* key, int keyNum, bool* subKey);
+void IP(bool* L, bool* R);
+void FP(bool* L, bool* R);
+void F(bool* R, bool* key);
+void applyDES(bool* L, bool* R, bool* key, bool isEncryption);

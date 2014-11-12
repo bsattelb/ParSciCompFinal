@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void generateSubkey(bool* key[], int keyNum, bool* subKey[]) {
+void generateSubkey(bool* key, int keyNum, bool* subKey) {
 	bool* C0 = new bool[32];
 	bool* D0 = new bool[32];
 	for (int i =0; i<32; i++){
@@ -39,11 +39,11 @@ void generateSubkey(bool* key[], int keyNum, bool* subKey[]) {
 	delete[] Di;
 
 	for (int i = 0; i < 48; i++) {
-		subKey[i] = almostThere[PC2_index(i)];
+		subKey[i] = almostThere[PC2_index[i]];
 	}
 
 }
-void IP(bool* L[], bool* R[]) {
+void IP(bool* L, bool* R) {
 	bool* block = new bool[64];
 	for (int i = 0; i < 32; ++i) {
 		block[i] = L[i];
@@ -55,7 +55,7 @@ void IP(bool* L[], bool* R[]) {
 		R[i] = block[IP_index[i+32]];
 	}
 }
-void FP(bool* L[], bool* R[]) {
+void FP(bool* L, bool* R) {
 	bool* block = new bool[64];
 	for (int i = 0; i < 32; ++i) {
 		block[i] = L[i];
@@ -68,7 +68,7 @@ void FP(bool* L[], bool* R[]) {
 	}
 }
 
-F(bool* R[], bool* key[]) {
+void F(bool* R, bool* key) {
 	bool* result = new bool[48];
 	for (int i = 0; i < 48; ++i) {
 		result[i] = key[i] != R[E_index[i]];
@@ -79,11 +79,11 @@ F(bool* R[], bool* key[]) {
 		index += result[i*6 + 2]*4;
 		index += result[i*6 + 3]*2;
 		index += result[i*6 + 4];
-		int value = S[i][index];
+		int value = S_indices[i][index];
 		R[i*4 + 0] = (value & 8);
 		R[i*4 + 1] = (value & 4);
-		R[i*4 + 2] = (value & 2;
-		R[i*4 + 3] = (value & 1;
+		R[i*4 + 2] = (value & 2);
+		R[i*4 + 3] = (value & 1);
 	}
 	for (int i = 0; i < 32; ++i) {
 		R[i] = R[P_index[i]];
@@ -91,26 +91,26 @@ F(bool* R[], bool* key[]) {
 	
 }
 // This is the same as decrypt with the key schedule reversed
-void applyDES(bool* L[], bool* R[], bool* key[], bool isEncryption) {
+void applyDES(bool* L, bool* R, bool* key, bool isEncryption) {
 	bool** subkeys = new bool*[16];
 	for (int i = 0; i < 16; ++i) {
 		subkeys[i] = new bool[48];
 	}
 
-	if (isEncyprtion) {
-		for (i = 1; i <= 16; ++i) {
-			generateSubkey(key, i, subKeys[i-1]);
+	if (isEncryption) {
+		for (int i = 1; i <= 16; ++i) {
+			generateSubkey(key, i, subkeys[i-1]);
 		}
 	}
 	else {
-		for (i = 16; i >= 1; -i) {
-			generateSubkey(key, i, subKeys[i-1]);
+		for (int i = 16; i >= 1; -i) {
+			generateSubkey(key, i, subkeys[i-1]);
 		}
 	}
 	IP(L, R);
 	
 	for (int i = 0; i < 16; ++i) {
-		F(R, subkey[i]);
+		F(R, subkeys[i]);
 		for (int j = 0; j < 32; ++j) {
 			bool temp = R[j];
 			R[j] = L[j] != R[j];
