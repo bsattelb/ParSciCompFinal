@@ -106,7 +106,7 @@ void applyDES(bool* L, bool* R, bool* key, bool isEncryption) {
 		}
 	}
 	else {
-		for (int i = 16; i >= 1; -i) {
+		for (int i = 16; i >= 1; --i) {
 			generateSubkey(key, i, subkeys[i-1]);
 		}
 	}

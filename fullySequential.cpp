@@ -14,13 +14,17 @@ int main(int argc, char* argv[]) {
 	bool* key = new bool[64];
 	char* text = new char[8];
 	
-	ifstream* inFile = new ifstream("input.txt");
+	ifstream* inFile = new ifstream("out.txt");
 	inFile->seekg (0, inFile->end);
 	int length = inFile->tellg();
 	inFile->seekg(0, inFile->beg);
 	
-	ofstream* outFile = new ofstream("out.txt");
-	
+	ofstream outFile;
+	outFile.open("out2.txt");
+	for (int i = 0; i < 64; ++i) {
+		key[i] = 0;
+	}
+	key[3] = 1;
 	for (int i = 0; i < (length / 8) + 1; ++i) {
 		readIn(text, inFile);
 		
@@ -29,11 +33,18 @@ int main(int argc, char* argv[]) {
 		applyDES(L, R, key, true);
 		
 		generateText(L, R, text);
-
-		writeOut(text, outFile);
+		
+		for (int i = 0; i < 8; ++i) {
+			if (text[i] != '\0') {
+				outFile.put(text[i]);
+			}
+		}
 	}
-	// Terminate the file with a null character
-	outFile->put('\0');
 	
+	delete [] L;
+	delete [] R;
+	delete [] key;
+	delete [] text;
+	delete inFile;
 	return 0;
 }
