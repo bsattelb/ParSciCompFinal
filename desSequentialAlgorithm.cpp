@@ -1,9 +1,11 @@
 #include <cmath>
 #include "desSequentialAlgorithm.h"
+#include <iostream>
 
 using namespace std;
 
 void generateSubkey(bool* key, int keyNum, bool* subKey) {
+	// These should be a total of 56 long
 	bool* C0 = new bool[32];
 	bool* D0 = new bool[32];
 	for (int i =0; i<32; i++){
@@ -92,11 +94,12 @@ void F(bool* R, bool* key) {
 }
 // This is the same as decrypt with the key schedule reversed
 void applyDES(bool* L, bool* R, bool* key, bool isEncryption) {
+	
 	bool** subkeys = new bool*[16];
 	for (int i = 0; i < 16; ++i) {
 		subkeys[i] = new bool[48];
 	}
-
+	
 	if (isEncryption) {
 		for (int i = 1; i <= 16; ++i) {
 			generateSubkey(key, i, subkeys[i-1]);

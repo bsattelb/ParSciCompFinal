@@ -25,9 +25,6 @@ int main(int argc, char* argv[]) {
 		readIn(text, inFile);
 		// Isn't working right
 		generateLR(L, R, text);
-		for(int j = 0; j < 32; ++j) {
-			cout << R[j] << endl;
-		}
 		// Seg fault here
 		applyDES(L, R, key, true);
 		

@@ -6,7 +6,6 @@
 
 void generateLR(bool* L, bool* R, char* text) {
 	for (int i = 0; i < 4; ++i) {
-		cout << int(text[i]) << text[i] << endl;;
 		L[i + 0] = text[i] & 128;
 		L[i + 1] = text[i] & 64;
 		L[i + 2] = text[i] & 32;
