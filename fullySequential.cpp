@@ -23,12 +23,13 @@ int main(int argc, char* argv[]) {
 	
 	for (int i = 0; i < (length / 8) + 1; ++i) {
 		readIn(text, inFile);
-		// Isn't working right
+		
 		generateLR(L, R, text);
-		// Seg fault here
+		
 		applyDES(L, R, key, true);
 		
 		generateText(L, R, text);
+
 		writeOut(text, outFile);
 	}
 	// Terminate the file with a null character

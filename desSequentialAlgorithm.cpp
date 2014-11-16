@@ -5,12 +5,12 @@
 using namespace std;
 
 void generateSubkey(bool* key, int keyNum, bool* subKey) {
-	// These should be a total of 56 long
-	bool* C0 = new bool[32];
-	bool* D0 = new bool[32];
-	for (int i =0; i<32; i++){
+	
+	bool* C0 = new bool[28];
+	bool* D0 = new bool[28];
+	for (int i =0; i<28; i++){
 		C0[i] = key[PC1_index[i]];
-		D0[i] = key[PC1_index[i+32]];
+		D0[i] = key[PC1_index[i+28]];
 	}
 	
 	int totalShift = 0;
@@ -18,24 +18,24 @@ void generateSubkey(bool* key, int keyNum, bool* subKey) {
 		totalShift += keyShifts[i];
 	}
 	
-	bool* Ci = new bool[32];
-	bool* Di = new bool[32];
-	for (int i = totalShift; i < 32; i++) {
+	bool* Ci = new bool[28];
+	bool* Di = new bool[28];
+	for (int i = totalShift; i < 28; i++) {
 		Ci[i-totalShift] = C0[i];
 		Di[i-totalShift] = D0[i];
 	}
 	for (int i = 0; i < totalShift; i++){
-		Ci[32-totalShift+i] = C0[i]; 
-		Di[32-totalShift+i] = D0[i]; 
+		Ci[28-totalShift+i] = C0[i]; 
+		Di[28-totalShift+i] = D0[i]; 
 	}
 	delete[] C0;
 	delete[] D0;
 
-	bool* almostThere = new bool[64];
+	bool* almostThere = new bool[56];
 
-	for (int i = 0; i < 32; i++) {
+	for (int i = 0; i < 28; i++) {
 		almostThere[i] = Ci[i];
-		almostThere[i+32] = Di[i];
+		almostThere[i+28] = Di[i];
 	}
 	delete[] Ci;
 	delete[] Di;
