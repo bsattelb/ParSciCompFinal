@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 	ifstream* inFile;
 	char* allOfTheText;
 	char* partOfTheText;
-	
+	ofstream outFile("out.txt");
 	int length;
 	inFile = new ifstream("input.txt");
 
@@ -32,6 +32,7 @@ int main(int argc, char* argv[]) {
 		inFile->seekg (0, inFile->end);
 		length = inFile->tellg();
 		inFile->seekg(0, inFile->beg);
+		outFile = new ofstream("out.txt");
 		allOfTheText = new char[length];
   	}
 
@@ -68,7 +69,6 @@ int main(int argc, char* argv[]) {
 		                    allOfTheText, count_vec, offset_vec, MPI::CHAR, 0);
 
 	if( my_rank == 0) {
-		ofstream outFile("out.txt");
 		for(int i = 0; i < length; ++i) {
 			outFile.put(allOfTheText[i]);
 		}
