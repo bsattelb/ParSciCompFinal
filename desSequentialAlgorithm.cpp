@@ -87,8 +87,12 @@ void F(bool* R, bool* key) {
 		R[i*4 + 2] = (value & 2);
 		R[i*4 + 3] = (value & 1);
 	}
+	bool* r_temp = new bool[32];
 	for (int i = 0; i < 32; ++i) {
-		R[i] = R[P_index[i]];
+		r_temp[i] = R[i];
+	}
+	for (int i = 0; i < 32; ++i) {
+		R[i] = r_temp[P_index[i]];
 	}
 	
 }
@@ -107,15 +111,16 @@ void applyDES(bool* L, bool* R, bool* key, bool isEncryption) {
 	}
 	else {
 		for (int i = 16; i >= 1; --i) {
-			generateSubkey(key, i, subkeys[i-1]);
+			generateSubkey(key, i, subkeys[16 - i]);
 		}
 	}
 	IP(L, R);
 	
+	bool temp;
 	for (int i = 0; i < 16; ++i) {
 		F(R, subkeys[i]);
 		for (int j = 0; j < 32; ++j) {
-			bool temp = R[j];
+			temp = R[j];
 			R[j] = L[j] != R[j];
 			L[j] = temp;
 		}

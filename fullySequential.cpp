@@ -18,19 +18,18 @@ int main(int argc, char* argv[]) {
 	inFile->seekg (0, inFile->end);
 	int length = inFile->tellg();
 	inFile->seekg(0, inFile->beg);
-	
+	cout << length << endl;
 	ofstream outFile;
 	outFile.open("out2.txt");
 	for (int i = 0; i < 64; ++i) {
 		key[i] = 0;
 	}
-	key[3] = 1;
-	for (int i = 0; i < (length / 8) + 1; ++i) {
+	for (int i = 0; i < (length / 8); ++i) {
 		readIn(text, inFile);
 		
 		generateLR(L, R, text);
 		
-		applyDES(L, R, key, true);
+		applyDES(L, R, key, false);
 		
 		generateText(L, R, text);
 		
