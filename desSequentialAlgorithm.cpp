@@ -75,6 +75,7 @@ void F(bool* R, bool* key) {
 	for (int i = 0; i < 48; ++i) {
 		result[i] = key[i] != R[E_index[i]];
 	}
+	
 	for (int i = 0; i < 8; ++i) {
 		int index = (result[i*6]*2 + result[i*6 + 5])*16;
 		index += result[i*6 + 1]*8;
@@ -94,7 +95,6 @@ void F(bool* R, bool* key) {
 	for (int i = 0; i < 32; ++i) {
 		R[i] = r_temp[P_index[i]];
 	}
-	
 }
 // This is the same as decrypt with the key schedule reversed
 void applyDES(bool* L, bool* R, bool* key, bool isEncryption) {
@@ -114,16 +114,25 @@ void applyDES(bool* L, bool* R, bool* key, bool isEncryption) {
 			generateSubkey(key, i, subkeys[16 - i]);
 		}
 	}
+	
 	IP(L, R);
 	
 	bool temp;
+	bool* oldR = new bool[32];
 	for (int i = 0; i < 16; ++i) {
+		for (int j = 0; j < 32; ++j) {
+			oldR[j] = R[j];
+		}
 		F(R, subkeys[i]);
 		for (int j = 0; j < 32; ++j) {
-			temp = R[j];
 			R[j] = L[j] != R[j];
-			L[j] = temp;
+			L[j] = oldR[j];
 		}
+	}
+	for (int i = 0; i < 32; ++i) {
+		temp = R[i];
+		R[i] = L[i];
+		L[i] = temp;
 	}
 	
 	FP(L, R);
