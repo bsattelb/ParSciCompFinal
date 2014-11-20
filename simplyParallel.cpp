@@ -7,7 +7,7 @@
 
 using namespace std;
 
-
+static const bool ENCRYPT = true;
 
 int main(int argc, char* argv[]) {
 	MPI::Init(argc,argv);
@@ -25,8 +25,29 @@ int main(int argc, char* argv[]) {
 	char* allOfTheText;
 	char* partOfTheText;
 	
+	string input;
+	string output;
+	if (ENCRYPT) {
+		input = "picture-wallpaper.jpg";
+		output = "output.txt";
+	}
+	else {
+		input = "output.txt";
+		output = "picture-wallpaper.jpg";
+	}
+	char inputFile[input.size()];
+	char outputFile[output.size()];
+	for (int i = 0; i < input.size(); ++i) {
+		inputFile[i] = input[i];
+	}
+	for (int i = 0; i < output.size(); ++i) {
+		outputFile[i] = output[i];
+	}
+	
+	
+	
 	int length;
-	inFile = new ifstream("input.txt");
+	inFile = new ifstream(inputFile);
 
 	if( my_rank == 0) {
 		inFile->seekg (0, inFile->end);
@@ -58,7 +79,7 @@ int main(int argc, char* argv[]) {
 	
 		generateLR(L, R, text);
 	
-		applyDES(L, R, key, true);
+		applyDES(L, R, key, ENCRYPT);
 	
 		generateText(L, R, text); 
 
@@ -68,7 +89,7 @@ int main(int argc, char* argv[]) {
 		                    allOfTheText, count_vec, offset_vec, MPI::CHAR, 0);
 
 	if( my_rank == 0) {
-		ofstream outFile("out.txt");
+		ofstream outFile(outputFile);
 		for(int i = 0; i < length; ++i) {
 			outFile.put(allOfTheText[i]);
 		}
@@ -78,6 +99,7 @@ int main(int argc, char* argv[]) {
 	if( my_rank == 0) {
 		double end_time = MPI::Wtime();
 		double time = begin_time - end_time;
+		cout << time << endl;
 	}
 	MPI::Finalize();
 

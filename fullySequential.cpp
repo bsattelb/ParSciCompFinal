@@ -6,7 +6,7 @@
 
 using namespace std;
 
-static const bool ENCRYPT = false;
+static const bool ENCRYPT = true;
 
 
 int main(int argc, char* argv[]) {
@@ -23,12 +23,12 @@ int main(int argc, char* argv[]) {
 	string input;
 	string output;
 	if (ENCRYPT) {
-		input = "input.txt";
+		input = "picture-wallpaper.jpg";
 		output = "output.txt";
 	}
 	else {
 		input = "output.txt";
-		output = "output2.txt";
+		output = "picture-wallpaper.jpg";
 	}
 	char inputFile[input.size()];
 	char outputFile[output.size()];

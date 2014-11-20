@@ -1,7 +1,7 @@
 CC = g++
 mpi = mpiCC
 
-all: fullySequential bruteForce openMPMain
+all: fullySequential bruteForce simplyParallel openMPMain
 
 fullySequential: fullySequential.o desSequentialAlgorithm.o fileAndConversion.o
 	$(CC) -o fullySequential fullySequential.o desSequentialAlgorithm.o fileAndConversion.o

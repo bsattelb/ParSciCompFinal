@@ -44,6 +44,7 @@ void generateSubkey(bool* key, int keyNum, bool* subKey) {
 		subKey[i] = almostThere[PC2_index[i]];
 	}
 
+		delete [] almostThere;
 }
 void IP(bool* L, bool* R) {
 	bool* block = new bool[64];
@@ -56,6 +57,8 @@ void IP(bool* L, bool* R) {
 		L[i] = block[IP_index[i]];
 		R[i] = block[IP_index[i+32]];
 	}
+	
+	delete [] block;
 }
 void FP(bool* L, bool* R) {
 	bool* block = new bool[64];
@@ -68,6 +71,8 @@ void FP(bool* L, bool* R) {
 		L[i] = block[FP_index[i]];
 		R[i] = block[FP_index[i+32]];
 	}
+	
+	delete [] block;
 }
 
 void F(bool* R, bool* key) {
@@ -95,6 +100,9 @@ void F(bool* R, bool* key) {
 	for (int i = 0; i < 32; ++i) {
 		R[i] = r_temp[P_index[i]];
 	}
+	
+	delete [] result;
+	delete [] r_temp;
 }
 // This is the same as decrypt with the key schedule reversed
 void applyDES(bool* L, bool* R, bool* key, bool isEncryption) {
@@ -136,4 +144,10 @@ void applyDES(bool* L, bool* R, bool* key, bool isEncryption) {
 	}
 	
 	FP(L, R);
+	
+	for (int i = 0; i < 16; ++i) {
+		delete [] subkeys[i];
+	}
+	delete [] subkeys;
+	delete [] oldR;
 }
