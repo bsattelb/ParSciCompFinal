@@ -8,15 +8,6 @@ using namespace std;
 
 static const bool ENCRYPT = false;
 
-void printLR(bool* L, bool*R) {
-	for (int i = 0; i < 32; ++i) {
-		cout << L[i];
-	}
-	for (int i = 0; i < 32; ++i) {
-		cout << R[i];
-	}
-	cout << endl;
-}
 
 int main(int argc, char* argv[]) {
 	bool* L = new bool[32];
@@ -55,7 +46,7 @@ int main(int argc, char* argv[]) {
 	ofstream outFile;
 	outFile.open(outputFile);
 	
-	for (int i = 0; i < (length / 8) + 1; ++i) {
+	for (int i = 0; i < (length / 8.0); ++i) {
 		readIn(text, inFile);
 		
 		generateLR(L, R, text);
@@ -64,11 +55,7 @@ int main(int argc, char* argv[]) {
 		
 		generateText(L, R, text);
 		
-		for (int i = 0; i < 8; ++i) {
-			if (text[i] != '\0') {
-				outFile.put(text[i]);
-			}
-		}
+		outFile.write(text, 8);
 	}
 	
 	delete [] L;
