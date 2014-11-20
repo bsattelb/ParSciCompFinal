@@ -38,13 +38,13 @@ int main(int argc, char* argv[]) {
 	for (int i = 0; i < output.size(); ++i) {
 		outputFile[i] = output[i];
 	}
-	ifstream* inFile = new ifstream(inputFile);
+	ifstream* inFile = new ifstream(inputFile, ios::binary);
 	inFile->seekg (0, inFile->end);
 	int length = inFile->tellg();
 	inFile->seekg(0, inFile->beg);
 	cout << length << endl;
 	ofstream outFile;
-	outFile.open(outputFile);
+	outFile.open(outputFile, ios::binary);
 	
 	for (int i = 0; i < (length / 8.0); ++i) {
 		readIn(text, inFile);
