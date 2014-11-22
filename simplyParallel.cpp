@@ -7,7 +7,7 @@
 
 using namespace std;
 
-static const bool ENCRYPT = false;
+static const bool ENCRYPT = true;
 static const string INITIAL = "input.txt";
 static const string ENCRYPTED = "encrypted.txt";
 static const string FINAL = "output.txt";
@@ -26,34 +26,17 @@ int main(int argc, char* argv[]) {
 	char* text = new char[8];
 	char* allOfTheText;
 	char* partOfTheText;
+	for( int i = 0; i < 64; ++i)
+		key[i]=0;
+	key[63]=1;
 	
 	// Create the file input stream
 	ifstream inFile;
 	
-	// Set up the input and output files
-	string input;
-	string output;
-	if (ENCRYPT) {
-		input = INITIAL;
-		output = ENCRYPTED;
-	}
-	else {
-		input = ENCRYPTED;
-		output = FINAL;
-	}
-	// Convert the strings to character arrays
-	char inputFile[input.size()];
-	char outputFile[output.size()];
 
-	for (int i = 0; i < input.size() ; ++i) {
-		inputFile[i] = input[i];
-	}
-	for (int i = 0; i < output.size(); ++i) {
-		outputFile[i] = output[i];
-	}	
 	// Create the input file and set up the length
 	int length;
-	inFile.open("encrypted.txt", ios::binary);
+	inFile.open("input.txt", ios::binary);
 
 
 	if( my_rank == 0) {
@@ -81,7 +64,6 @@ int main(int argc, char* argv[]) {
 	
 	for (int i = 0; i < count_vec[my_rank]/8.0; ++i) {
 		readIn(&partOfTheText[i*8], &inFile);
-		cout << partOfTheText[i*8] << endl;
 		generateLR(L, R, &partOfTheText[i*8]);
 		
 		applyDES(L, R, key, ENCRYPT);

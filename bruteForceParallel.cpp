@@ -16,7 +16,8 @@ int main(int argc, char* argv[]) {
 	bool* L = new bool[32];
 	bool* R = new bool[32];
 	bool* keyBool = new bool[64];
-	char* text = new char[8];
+	char* text = new char[9];
+	text[8] = '\0';
 	char* signature = new char[8];
 	ifstream inFile;
 	inFile.open("output.txt", ios::binary);
@@ -33,20 +34,23 @@ int main(int argc, char* argv[]) {
 	
 	bool temp;
   //int num_keys = pow(2,56)/num_cores;
-  int num_keys = 100/num_cores;
-  cout<<"we got here! "<< my_rank<< endl;
+  int num_keys = pow(2,21)/num_cores;
+  
   if(my_rank != num_cores - 1) {
 	for(int key = my_rank*num_keys; key < my_rank*num_keys+num_keys ; ++key) {
 		for (int i = 0; i < 64; ++i) {
 			if (i % 8 == 7) {}
 			else {
 				keyBool[i] = key & (int)pow(2, (i- i /8));
+
 			}
 		}
+
 		inFile.seekg(0, inFile.beg);
 		
-		for (int i = 0; i < (length / 8) + 1; ++i) {
+		for (int i = 0; i < (length / 8); ++i) {
 			readIn(text, &inFile);
+
 			generateLR(L, R, text);
 			
 			applyDES(L, R, keyBool, false);
@@ -63,23 +67,25 @@ int main(int argc, char* argv[]) {
 		}
 		if (temp) {
 			inKey.isKey = 1;
-      inKey.keyNum = key;
+      		inKey.keyNum = key;
 			break;
 		}
 	}
   }
 
   else {
-	for(int key = my_rank*num_keys; key < 100 ; ++key) {
+	for(int key = my_rank*num_keys; key < pow(2,21) ; ++key) {
 		for (int i = 0; i < 64; ++i) {
 			if (i % 8 == 7) {}
 			else {
 				keyBool[i] = key & (int)pow(2, (i- i /8));
+
 			}
 		}
+
 		inFile.seekg(0, inFile.beg);
 		
-		for (int i = 0; i < (length / 8) + 1; ++i) {
+		for (int i = 0; i < (length / 8); ++i) {
 			readIn(text, &inFile);
 			generateLR(L, R, text);
 			
@@ -97,20 +103,28 @@ int main(int argc, char* argv[]) {
 		}
 		if (temp) {
 			inKey.isKey = 1;
-      inKey.keyNum = key;
+     	    inKey.keyNum = key;
+     	   
 			break;
 		}
 	}
   }
 
-  MPI::COMM_WORLD.Reduce( &inKey, &outKey, 1, MPI::TWOINT, MPI::MAXLOC, 0);
-  if(my_rank == 0)
-  	cout << "The key to decrypt this file is: " << outKey.keyNum << endl;
+	MPI::COMM_WORLD.Reduce( &inKey, &outKey, 1, MPI::TWOINT, MPI::MAXLOC, 0);
+	if(my_rank == 0){
+	  	cout << "The key to decrypt this file is: " << endl;
+	  	for (int i = 0; i < 64; ++i) {
+	  		cout << (bool)(outKey.keyNum & (int)pow(2, i));
+	  	}
+	  	cout << endl;
+	}
+  	
 
-
-  double end_time = MPI::Wtime();
-  double time = end_time - begin_time;
-  cout << "Time taken: " << time;
+  if(my_rank == 0){
+  	double end_time = MPI::Wtime();
+  	double time = end_time - begin_time;
+  	cout << "Time taken: " << time <<endl;
+  }
   MPI::Finalize();
 
 	return 0;

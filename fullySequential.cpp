@@ -17,34 +17,20 @@ int main(int argc, char* argv[]) {
 	
 	bool test [64] = {0,0,0,1,0,0,1,1, 0,0,1,1,0,1,0,0, 0,1,0,1,0,1,1,1, 0,1,1,1,1,0,0,1, 1,0,0,1,1,0,1,1, 1,0,1,1,1,1,0,0, 1,1,0,1,1,1,1,1, 1,1,1,1,0,0,0,1};
 	for (int i = 0; i < 64; ++i) {
-		key[i] = test[i];
+		key[i] = 0;
 	}
+	key[0]=1;
+	key[4]=1;
+	key[8] = 1;
 	
-	string input;
-	string output;
-	if (ENCRYPT) {
-		input = "picture-wallpaper.jpg";
-		output = "output.txt";
-	}
-	else {
-		input = "output.txt";
-		output = "picture-wallpaper.jpg";
-	}
-	char inputFile[input.size()];
-	char outputFile[output.size()];
-	for (int i = 0; i < input.size(); ++i) {
-		inputFile[i] = input[i];
-	}
-	for (int i = 0; i < output.size(); ++i) {
-		outputFile[i] = output[i];
-	}
-	ifstream* inFile = new ifstream(inputFile, ios::binary);
+
+	ifstream* inFile = new ifstream("input.txt", ios::binary);
 	inFile->seekg (0, inFile->end);
 	int length = inFile->tellg();
 	inFile->seekg(0, inFile->beg);
 	cout << length << endl;
 	ofstream outFile;
-	outFile.open(outputFile, ios::binary);
+	outFile.open("output.txt", ios::binary);
 	
 	for (int i = 0; i < (length / 8.0); ++i) {
 		readIn(text, inFile);
