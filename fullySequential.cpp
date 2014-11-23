@@ -6,7 +6,9 @@
 
 using namespace std;
 
-static const bool ENCRYPT = true;
+static const bool ENCRYPT = false;
+static const char* inputFile = "input.txt";
+static const char* outputFile = "output.txt";
 
 
 int main(int argc, char* argv[]) {
@@ -19,18 +21,14 @@ int main(int argc, char* argv[]) {
 	for (int i = 0; i < 64; ++i) {
 		key[i] = 0;
 	}
-	key[0]=1;
-	key[4]=1;
-	key[8] = 1;
-	
 
-	ifstream* inFile = new ifstream("input.txt", ios::binary);
+	ifstream* inFile = new ifstream(inputFile, ios::binary);
 	inFile->seekg (0, inFile->end);
 	int length = inFile->tellg();
 	inFile->seekg(0, inFile->beg);
 	cout << length << endl;
 	ofstream outFile;
-	outFile.open("output.txt", ios::binary);
+	outFile.open(outputFile, ios::binary);
 	
 	for (int i = 0; i < (length / 8.0); ++i) {
 		readIn(text, inFile);

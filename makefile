@@ -1,5 +1,5 @@
 CC = g++
-mpi = mpiCC
+mpi = mpicxx
 
 all: fullySequential bruteForce simplyParallel openMPMain bruteParallel
 
