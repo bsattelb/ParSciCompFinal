@@ -11,7 +11,7 @@ using namespace std;
 static const bool ENCRYPT = true;
 
 static const char INITIAL[] = "input.txt";
-static const char OUTPUT[] = "out.txt";
+static const char OUTPUT[] = "output.txt";
 static const int MAXSIZE = 8000;
 
 int main(int argc, char* argv[]) {
@@ -54,15 +54,19 @@ int main(int argc, char* argv[]) {
 	// Calculate the number of iterations
 	// to ensure that memory is not overused
 	// and calculate the memory used
+	if (length %8 != 0) {
+		length = length + (8 - length % 8);
+	}
 	int iterations = ceil((double)length / MAXSIZE);
 	int perCoreMemory = (length / iterations) / num_cores;
-	perCoreMemory -= perCoreMemory % 8;
+	perCoreMemory += perCoreMemory % 8;
 	int memoryUsedPerIteration = perCoreMemory * num_cores;
 	
 	int charactersLeft = length - memoryUsedPerIteration * iterations;
-	cout << charactersLeft << endl;
+
 	// Loop through
 	for (int i = 0; i < iterations; ++i) { 
+		
 		// LOAD BALANCE
 		for (int j = 0; j < num_cores; ++j) {
 			count_vec[j] = perCoreMemory;
@@ -70,23 +74,47 @@ int main(int argc, char* argv[]) {
 			offset_vec[j] += (j > 0) ? offset_vec[j-1] : 0;
 		}
 		
+		if (i == iterations - 1) {
+			count_vec[num_cores - 1] += charactersLeft;
+		}
+		
+		int count = 0;
+		for(int k = 0; k < num_cores; ++k) {
+			count += count_vec[k];
+		}
 		
 		// Set up the character memory
-		partOfTheText = new char[perCoreMemory];
+		partOfTheText = new char[count_vec[my_rank]];
 		if (my_rank == 0) {
-			allOfTheText = new char[memoryUsedPerIteration];
+			allOfTheText = new char[count];
 		}
+		cout << memoryUsedPerIteration << endl;
+		cout << count << endl;
 		
 		// Find the proper place in the file for a given core and iteration
 		inFile.seekg(memoryUsedPerIteration * i + offset_vec[my_rank],
 		             inFile.beg);
-		             
+					 
 		// Apply the encryption
 		for (int j = 0; j < count_vec[my_rank] / 8.0; ++j) {
 			readIn(&partOfTheText[j*8], &inFile);
+			/*if (iterations == i + 1 && my_rank + 1 == num_cores) {
+				cout << j << " ";
+				for (int k = 0; k < 8; k++) {
+					cout << (int)partOfTheText[j*8 + k] << " ";
+				}
+				cout << endl;
+			}*/
 			generateLR(L, R, &partOfTheText[j*8]);
 			applyDES(L, R, key, ENCRYPT);
 			generateText(L, R, &partOfTheText[j*8]);
+			/*if (iterations == i + 1 && my_rank + 1 == num_cores) {
+				cout << j << " ";
+				for (int k = 0; k < 8; k++) {
+					cout << (int)partOfTheText[j*8 + k] << " ";
+				}
+				cout << endl;
+			}*/
 		}
 		
 		// Gather all the values to master
@@ -96,7 +124,7 @@ int main(int argc, char* argv[]) {
 		                        
 		// Output the values
 		if (my_rank == 0) {
-			outFile.write(allOfTheText, memoryUsedPerIteration);
+			outFile.write(allOfTheText, count);
 		}
 		
 		// Prevent memory leaks
@@ -105,18 +133,6 @@ int main(int argc, char* argv[]) {
 			delete [] allOfTheText;
 		}
 		
-	}
-	
-	if (my_rank == 0) {
-		char* text = new char[8];
-		for (int j = 0; j < charactersLeft / 8.0; ++j) {
-			readIn(text, &inFile);
-			generateLR(L, R, text);
-			applyDES(L, R, key, ENCRYPT);
-			generateText(L, R, text);
-			outFile.write(text, 8);
-		}
-		delete [] text;
 	}
 	
 	if (my_rank == 0) {
