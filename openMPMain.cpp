@@ -1,75 +1,144 @@
+#include "mpif.h"
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
-#include <omp.h>
+#include <cmath>
 #include "desSequentialAlgorithm.h"
 #include "fileAndConversion.h"
 
+
 using namespace std;
 
-static const bool ENCRYPT = false;
+static const bool ENCRYPT = true;
 
+static const char INITIAL[] = "input.txt";
+static const char OUTPUT[] = "output.txt";
+static const int MAXSIZE = 1;
 
 int main(int argc, char* argv[]) {
+	// Set up MPI
+	MPI::Init(argc, argv);
+	int my_rank = MPI::COMM_WORLD.Get_rank();
+	int num_cores = MPI::COMM_WORLD.Get_size();
+	double begin_time = MPI::Wtime();
+	
+	// Create pointer arrays for use later on
 	bool* L = new bool[32];
 	bool* R = new bool[32];
 	bool* key = new bool[64];
-	char* text = new char[8];
+	char* allOfTheText;
+	char* partOfTheText;
+	int* count_vec = new int[num_cores];
+	int* offset_vec = new int[num_cores];
 	
-	bool test [64] = {0,0,0,1,0,0,1,1, 0,0,1,1,0,1,0,0, 0,1,0,1,0,1,1,1, 0,1,1,1,1,0,0,1, 1,0,0,1,1,0,1,1, 1,0,1,1,1,1,0,0, 1,1,0,1,1,1,1,1, 1,1,1,1,0,0,0,1};
+	
+	// Declare the key
 	for (int i = 0; i < 64; ++i) {
-		key[i] = test[i];
+		key[i] = 0;
 	}
 	
-	string input;
-	string output;
-	if (ENCRYPT) {
-		input = "input.txt";
-		output = "output.txt";
-	}
-	else {
-		input = "output.txt";
-		output = "output2.txt";
-	}
-	char inputFile[input.size()];
-	char outputFile[output.size()];
-	for (int i = 0; i < input.size(); ++i) {
-		inputFile[i] = input[i];
-	}
-	for (int i = 0; i < output.size(); ++i) {
-		outputFile[i] = output[i];
-	}
-	ifstream* inFile = new ifstream(inputFile, ios::binary);
-	inFile->seekg (0, inFile->end);
-	int length = inFile->tellg();
-	inFile->seekg(0, inFile->beg);
-	cout << length << endl;
+	// Set up the file stream
+	ifstream inFile;
+	inFile.open(INITIAL, ios::binary);
+	
 	ofstream outFile;
-	outFile.open(outputFile, ios::binary);
-	int i;
-	int numLoops = (length / 8.0) + (length / 8 == length / 8.0);
-	char* allText = new char[length];
-	inFile->read(allText, length);
-	#pragma omp parallel private(L, R, text, inFile, i) num_threads(2)
-	{
-	#pragma omp for 
-	for (i = 0; i < numLoops; ++i) {
-		char text[8];
-		for (int j = 0; j < 8; ++j) {
-			text[j] = allText[i*8 + j];
-		}
-		generateLR(L, R, text);
-		
-		applyDES(L, R, key, ENCRYPT);
-		
-		generateText(L, R, text);
-	}
+	if (my_rank == 0) {
+		outFile.open(OUTPUT, ios::binary);
 	}
 	
-	delete [] L;
-	delete [] R;
-	delete [] key;
-	delete [] text;
-	delete inFile;
+	// Calculate the length of the fiel
+	int length;
+	inFile.seekg(0, inFile.end);
+	length = inFile.tellg();
+	inFile.seekg(0, inFile.beg);
+	
+	// Calculate the number of iterations
+	// to ensure that memory is not overused
+	// and calculate the memory used
+	if (length %8 != 0) {
+		length = length + (8 - length % 8);
+	}
+	int iterations = ceil((double)length / MAXSIZE);
+	int perCoreMemory = (length / iterations) / num_cores;
+	perCoreMemory += perCoreMemory % 8;
+	int memoryUsedPerIteration = perCoreMemory * num_cores;
+	
+	int charactersLeft = length - memoryUsedPerIteration * iterations;
+
+	
+	
+	// iterations = length / MAXSIZE;
+	// perCoreMemory = MAXSIZE / num_cores;
+	// memoryUsedPerIteration = 
+	
+	// Loop through
+	for (int i = 0; i < iterations; ++i) { 
+		
+		// LOAD BALANCE
+		for (int j = 0; j < num_cores; ++j) {
+			count_vec[j] = perCoreMemory;
+			offset_vec[j] = (j > 0) ? count_vec[j-1] : 0;
+			offset_vec[j] += (j > 0) ? offset_vec[j-1] : 0;
+		}
+		
+		if (i == iterations - 1) {
+			count_vec[num_cores - 1] += charactersLeft;
+		}
+		
+		int count = 0;
+		for(int k = 0; k < num_cores; ++k) {
+			count += count_vec[k];
+		}
+		
+		// Set up the character memory
+		partOfTheText = new char[count_vec[my_rank]];
+		if (my_rank == 0) {
+			allOfTheText = new char[count];
+		}
+		cout << memoryUsedPerIteration << endl;
+		cout << count << endl;
+		
+		// Find the proper place in the file for a given core and iteration
+		inFile.seekg(memoryUsedPerIteration * i + offset_vec[my_rank],
+		             inFile.beg);
+					 
+		// Apply the encryption
+		int j = 0;
+		#pragma omp parallel private(L, R, j)
+		{
+			#pragma omp for
+			for (; j < count_vec[my_rank] / 8.0; ++j) {
+				readIn(&partOfTheText[j*8], &inFile);
+				generateLR(L, R, &partOfTheText[j*8]);
+				applyDES(L, R, key, ENCRYPT);
+				generateText(L, R, &partOfTheText[j*8]);
+			}
+		}
+		
+		// Gather all the values to master
+		MPI::COMM_WORLD.Gatherv(partOfTheText, count_vec[my_rank], MPI::CHAR,
+		                        allOfTheText, count_vec, offset_vec, MPI::CHAR,
+		                        0);
+		                        
+		// Output the values
+		if (my_rank == 0) {
+			outFile.write(allOfTheText, count);
+		}
+		
+		// Prevent memory leaks
+		delete [] partOfTheText;
+		if (my_rank == 0) {
+			delete [] allOfTheText;
+		}
+		
+	}
+	
+	if (my_rank == 0) {
+		double end_time = MPI::Wtime();
+		cout << end_time - begin_time << endl;;
+	}
+	
+	
+	MPI::Finalize();
 	return 0;
 }

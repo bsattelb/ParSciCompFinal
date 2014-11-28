@@ -13,7 +13,7 @@ static const bool ENCRYPT = true;
 
 static const char INITIAL[] = "input.txt";
 static const char OUTPUT[] = "output.txt";
-static const int MAXSIZE = 32000;
+static const int MAXSIZE = 1;
 
 int main(int argc, char* argv[]) {
 	// Set up MPI
@@ -65,6 +65,12 @@ int main(int argc, char* argv[]) {
 	
 	int charactersLeft = length - memoryUsedPerIteration * iterations;
 
+	
+	
+	// iterations = length / MAXSIZE;
+	// perCoreMemory = MAXSIZE / num_cores;
+	// memoryUsedPerIteration = 
+	
 	// Loop through
 	for (int i = 0; i < iterations; ++i) { 
 		
@@ -99,16 +105,12 @@ int main(int argc, char* argv[]) {
 		// Apply the encryption
 		for (int j = 0; j < count_vec[my_rank] / 8.0; ++j) {
 			readIn(&partOfTheText[j*8], &inFile);
-			/*if (iterations == i + 1 && my_rank + 1 == num_cores) {
-				cout << j << " ";
-				for (int k = 0; k < 8; k++) {
-					cout << (int)partOfTheText[j*8 + k] << " ";
-				}
-				cout << endl;
-			}*/
 			generateLR(L, R, &partOfTheText[j*8]);
 			applyDES(L, R, key, ENCRYPT);
 			generateText(L, R, &partOfTheText[j*8]);
+			generateLR(L, R, &partOfTheText[j*8]);
+			applyDES(L, R, key, !ENCRYPT);
+			generateText(L, R, &PartOfTheText[j*8]);
 			/*if (iterations == i + 1 && my_rank + 1 == num_cores) {
 				cout << j << " ";
 				for (int k = 0; k < 8; k++) {
