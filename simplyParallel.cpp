@@ -9,11 +9,11 @@
 
 using namespace std;
 
-static const bool ENCRYPT = true;
+static const bool ENCRYPT = false;
 
-static const char INITIAL[] = "input.txt";
-static const char OUTPUT[] = "output.txt";
-static const int MAXSIZE = 32000;
+static const char INITIAL[] = "output2.txt";
+static const char OUTPUT[] = "decrypt2.txt";
+static const int MAXSIZE = 16384;
 
 int main(int argc, char* argv[]) {
 	// Set up MPI
@@ -55,15 +55,12 @@ int main(int argc, char* argv[]) {
 	// Calculate the number of iterations
 	// to ensure that memory is not overused
 	// and calculate the memory used
-	if (length %8 != 0) {
-		length = length + (8 - length % 8);
-	}
-	int iterations = ceil((double)length / MAXSIZE);
-	int perCoreMemory = (length / iterations) / num_cores;
-	perCoreMemory += perCoreMemory % 8;
-	int memoryUsedPerIteration = perCoreMemory * num_cores;
+	int iterations = (length / MAXSIZE);
+	int perCoreMemory = MAXSIZE / num_cores;
+	int memoryUsedPerIteration = MAXSIZE;
+	int charactersLeft = length - MAXSIZE * iterations;
 	
-	int charactersLeft = length - memoryUsedPerIteration * iterations;
+
 
 	// Loop through
 	for (int i = 0; i < iterations; ++i) { 
@@ -89,8 +86,8 @@ int main(int argc, char* argv[]) {
 		if (my_rank == 0) {
 			allOfTheText = new char[count];
 		}
-		cout << memoryUsedPerIteration << endl;
-		cout << count << endl;
+		//cout << memoryUsedPerIteration << endl;
+		//cout << count << endl;
 		
 		// Find the proper place in the file for a given core and iteration
 		inFile.seekg(memoryUsedPerIteration * i + offset_vec[my_rank],
@@ -134,6 +131,18 @@ int main(int argc, char* argv[]) {
 			delete [] allOfTheText;
 		}
 		
+	}
+	if (my_rank == 0) {
+		char* text = new char[8];
+		inFile.seekg(iterations*MAXSIZE, inFile.beg);
+		for (int i = 0; i < charactersLeft / 8.0; ++i) {
+			readIn(text, &inFile);
+			generateLR(L, R, text);
+			applyDES(L, R, key, ENCRYPT);
+			generateText(L, R, text);
+			outFile.write(text, 8);
+		}
+		delete [] text;
 	}
 	
 	if (my_rank == 0) {
