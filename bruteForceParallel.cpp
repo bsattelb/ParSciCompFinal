@@ -1,10 +1,11 @@
+#include "mpi.h"
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
 #include <cmath>
 #include "desSequentialAlgorithm.h"
 #include "fileAndConversion.h"
-#include "mpi.h"
+
 
 using namespace std;
 

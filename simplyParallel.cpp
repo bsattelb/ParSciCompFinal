@@ -1,10 +1,11 @@
+#include "mpi.h"
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
 #include <cmath>
 #include "desSequentialAlgorithm.h"
 #include "fileAndConversion.h"
-#include "mpi.h"
+
 
 using namespace std;
 
@@ -12,7 +13,7 @@ static const bool ENCRYPT = true;
 
 static const char INITIAL[] = "input.txt";
 static const char OUTPUT[] = "output.txt";
-static const int MAXSIZE = 8000;
+static const int MAXSIZE = 32000;
 
 int main(int argc, char* argv[]) {
 	// Set up MPI
