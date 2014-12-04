@@ -9,11 +9,11 @@
 
 using namespace std;
 
-static const bool ENCRYPT = false;
+static const bool ENCRYPT = true;
 
 static const char INITIAL[] = "input.txt";
 static const char OUTPUT[] = "output.txt";
-static const int MAXSIZE = 1;
+static const int MAXSIZE = 8192; // 2^13
 
 int main(int argc, char* argv[]) {
 	// Set up MPI
@@ -55,96 +55,104 @@ int main(int argc, char* argv[]) {
 	// Calculate the number of iterations
 	// to ensure that memory is not overused
 	// and calculate the memory used
-	int iterations = (length / MAXSIZE);
+	int iterations = ceil((double)length / MAXSIZE);
 	int perCoreMemory = MAXSIZE / num_cores;
-	int memoryUsedPerIteration = MAXSIZE;
-	int charactersLeft = length - MAXSIZE * iterations;
+	int memoryUsedPerIteration = perCoreMemory * num_cores;
+	int charactersOver = perCoreMemory*num_cores*iterations - length;
 	
-
-
-	
-	
-	// iterations = length / MAXSIZE;
-	// perCoreMemory = MAXSIZE / num_cores;
-	// memoryUsedPerIteration = 
-	
-	// Loop through
-	for (int i = 0; i < iterations; ++i) { 
+	// Loop through the normal iterations
+	// Create the arrays to be used
+	partOfTheText = new char[perCoreMemory];
+	if (my_rank == 0) {
+		allOfTheText = new char[MAXSIZE];
+	}
+	for (int i = 0; i < iterations - 1; ++i) {
 		
-		// LOAD BALANCE
-		for (int j = 0; j < num_cores; ++j) {
-			count_vec[j] = perCoreMemory;
-			offset_vec[j] = (j > 0) ? count_vec[j-1] : 0;
-			offset_vec[j] += (j > 0) ? offset_vec[j-1] : 0;
-		}
-		
-		if (i == iterations - 1) {
-			count_vec[num_cores - 1] += charactersLeft;
-		}
-		
-		int count = 0;
-		for(int k = 0; k < num_cores; ++k) {
-			count += count_vec[k];
-		}
-		
-		// Set up the character memory
-		partOfTheText = new char[count_vec[my_rank]];
-		if (my_rank == 0) {
-			allOfTheText = new char[count];
-		}
-		//cout << memoryUsedPerIteration << endl;
-		//cout << count << endl;
-		
-		// Find the proper place in the file for a given core and iteration
-		inFile.seekg(memoryUsedPerIteration * i + offset_vec[my_rank],
+		// Find the proper file position for the iteration and core
+		inFile.seekg(memoryUsedPerIteration * i + my_rank * perCoreMemory,
 		             inFile.beg);
-					 
+		
 		// Apply the encryption
-		for (int j = 0; j < count_vec[my_rank] / 8.0; ++j) {
+		for (int j = 0; j < perCoreMemory / 8.0; ++j) {
 			readIn(&partOfTheText[j*8], &inFile);
 			generateLR(L, R, &partOfTheText[j*8]);
 			applyDES(L, R, key, ENCRYPT);
 			generateText(L, R, &partOfTheText[j*8]);
 			generateLR(L, R, &partOfTheText[j*8]);
 			applyDES(L, R, key, !ENCRYPT);
-			generateText(L, R, &PartOfTheText[j*8]);
-			/*if (iterations == i + 1 && my_rank + 1 == num_cores) {
-				cout << j << " ";
-				for (int k = 0; k < 8; k++) {
-					cout << (int)partOfTheText[j*8 + k] << " ";
-				}
-				cout << endl;
-			}*/
+			generateText(L, R, &partOfTheText[j*8]);
 		}
 		
-		// Gather all the values to master
-		MPI::COMM_WORLD.Gatherv(partOfTheText, count_vec[my_rank], MPI::CHAR,
-		                        allOfTheText, count_vec, offset_vec, MPI::CHAR,
-		                        0);
-		                        
-		// Output the values
+		// Gather the encrypted values
+		MPI::COMM_WORLD.Gather(partOfTheText, perCoreMemory, MPI::CHAR, 
+		                       allOfTheText, perCoreMemory, MPI::CHAR, 0);
+		
+		// Output the encrypted values
 		if (my_rank == 0) {
-			outFile.write(allOfTheText, count);
+			outFile.write(allOfTheText, MAXSIZE);
 		}
-		
-		// Prevent memory leaks
-		delete [] partOfTheText;
-		if (my_rank == 0) {
-			delete [] allOfTheText;
-		}
-		
 	}
+	// Deallocate the old memory
+	delete [] partOfTheText;
 	if (my_rank == 0) {
-		char* text = new char[8];
-		inFile.seekg(iterations*MAXSIZE, inFile.beg);
-		for (int i = 0; i < charactersLeft / 8.0; ++i) {
-			readIn(text, &inFile);
-			generateLR(L, R, text);
-			applyDES(L, R, key, ENCRYPT);
-			generateText(L, R, text);
-			outFile.write(text, 8);
-		}
-		delete [] text;
+		delete [] allOfTheText;
+	}
+	
+	// The last iteration
+	
+	// Create count and offset vectors
+	// Calculate the remaining characters
+	int totalCharactersLeft = length - MAXSIZE * (iterations - 1);
+	// Calculate the number of characters per core
+	perCoreMemory = totalCharactersLeft / num_cores;
+	// Calculate the number of characters given to the last core
+	int lastCoreMemory = perCoreMemory + (totalCharactersLeft - perCoreMemory * num_cores);
+	for (int i = 0; i < num_cores; ++i) {
+		count_vec[i]  = perCoreMemory;
+		offset_vec[i] = perCoreMemory*i;
+	}
+	count_vec[num_cores - 1] = lastCoreMemory;
+		
+	// Set up the memory
+	partOfTheText = new char[count_vec[my_rank]];
+	if (my_rank == 0) {
+		allOfTheText = new char[totalCharactersLeft];
+	}
+	
+	// Find the proper place in the file for a given core and iteration
+	inFile.seekg(length - totalCharactersLeft + offset_vec[my_rank],
+				 inFile.beg);
+				 
+	// Apply the encryption
+	for (int j = 0; j < count_vec[my_rank] / 8.0; ++j) {
+		readIn(&partOfTheText[j*8], &inFile);
+		generateLR(L, R, &partOfTheText[j*8]);
+		applyDES(L, R, key, ENCRYPT);
+		generateText(L, R, &partOfTheText[j*8]);
+		generateLR(L, R, &partOfTheText[j*8]);
+		applyDES(L, R, key, !ENCRYPT);
+		generateText(L, R, &partOfTheText[j*8]);
+	}
+	
+	// Gather all the values to master
+	MPI::COMM_WORLD.Gatherv(partOfTheText, count_vec[my_rank], MPI::CHAR,
+							allOfTheText, count_vec, offset_vec, MPI::CHAR,
+							0);
+							
+	// Output the values
+	if (my_rank == 0) {
+		outFile.write(allOfTheText, totalCharactersLeft);
+	}
+	
+	// Deallocate pointers
+	delete [] partOfTheText;
+	delete [] L;
+	delete [] R;
+	delete [] key;
+	delete [] count_vec;
+	delete [] offset_vec;
+	if (my_rank == 0) {
+		delete [] allOfTheText;
 	}
 	
 	if (my_rank == 0) {
