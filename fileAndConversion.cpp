@@ -45,20 +45,10 @@ void generateText(bool* L, bool* R, char* text) {
 
 void readIn(char* text, ifstream* file) {
 	// Initialize every element to the null character
-	// So that we can know when the end is reached
+	// to avoid carrying over values
 	for (int i = 0; i < 8; ++i) {
 		text[i] = '\0';
 	}
 	// Read in eight characters
 	file->read(text, 8);
-}
-
-void writeOut(char* text, ofstream* outFile) {
-	for (int i = 0; i < 8; ++i) {
-		// Don't output the null character
-		if (text[i] != '\0') {
-			outFile->put(text[i]);
-		}
-	}
-	
 }

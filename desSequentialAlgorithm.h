@@ -1,5 +1,6 @@
-// All tables changed to zero-index
 // Drawn from http://en.wikipedia.org/wiki/DES_supplementary_material
+// All permutations changed to zero index
+
 // Initial permutation
 static const int IP_index[64] = {57,49,41,33,25,17,9,1,
 		                         59,51,43,35,27,19,11,3,

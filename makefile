@@ -1,12 +1,10 @@
 CC = g++
 mpi = mpicxx
 
-all: fullySequential bruteForce simplyParallel openMPMain bruteParallel
+all: fullySequential simplyParallel bruteParallel openMPMain
 
 fullySequential: fullySequential.o desSequentialAlgorithm.o fileAndConversion.o
 	$(CC) -o fullySequential fullySequential.o desSequentialAlgorithm.o fileAndConversion.o
-bruteForce: bruteForce.o desSequentialAlgorithm.o fileAndConversion.o
-	$(CC) -o bruteForce bruteForce.o desSequentialAlgorithm.o fileAndConversion.o
 
 simplyParallel: simplyParallel.o fileAndConversion.o desSequentialAlgorithm.o
 	$(mpi) -o simplyParallel simplyParallel.o fileAndConversion.o desSequentialAlgorithm.o

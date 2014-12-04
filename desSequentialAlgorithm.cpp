@@ -4,8 +4,8 @@
 
 using namespace std;
 
+// Generates the keyNumth subkey
 void generateSubkey(bool* key, int keyNum, bool* subKey) {
-	
 	bool* C0 = new bool[28];
 	bool* D0 = new bool[28];
 	for (int i =0; i<28; i++){
@@ -31,21 +31,22 @@ void generateSubkey(bool* key, int keyNum, bool* subKey) {
 	delete[] C0;
 	delete[] D0;
 
-	bool* almostThere = new bool[56];
+	bool* unpermuted = new bool[56];
 
 	for (int i = 0; i < 28; i++) {
-		almostThere[i] = Ci[i];
-		almostThere[i+28] = Di[i];
+		unpermuted[i] = Ci[i];
+		unpermuted[i+28] = Di[i];
 	}
 	delete[] Ci;
 	delete[] Di;
 
 	for (int i = 0; i < 48; i++) {
-		subKey[i] = almostThere[PC2_index[i]];
+		subKey[i] = unpermuted[PC2_index[i]];
 	}
-
-		delete [] almostThere;
+	delete [] unpermuted;
 }
+
+// Applies the intial permutation
 void IP(bool* L, bool* R) {
 	bool* block = new bool[64];
 	for (int i = 0; i < 32; ++i) {
@@ -60,6 +61,7 @@ void IP(bool* L, bool* R) {
 	
 	delete [] block;
 }
+// Applies the final permutation
 void FP(bool* L, bool* R) {
 	bool* block = new bool[64];
 	for (int i = 0; i < 32; ++i) {
@@ -75,6 +77,7 @@ void FP(bool* L, bool* R) {
 	delete [] block;
 }
 
+// Applies the Feistel function
 void F(bool* R, bool* key) {
 	bool* result = new bool[48];
 	for (int i = 0; i < 48; ++i) {
@@ -104,7 +107,9 @@ void F(bool* R, bool* key) {
 	delete [] result;
 	delete [] r_temp;
 }
-// This is the same as decrypt with the key schedule reversed
+
+// Apply the encryption to the L and R arrays using the key value
+// This is the same as decryption with the key schedule reversed
 void applyDES(bool* L, bool* R, bool* key, bool isEncryption) {
 	
 	bool** subkeys = new bool*[16];
