@@ -9,10 +9,10 @@
 
 using namespace std;
 
-static const bool ENCRYPT = false;
+static const bool ENCRYPT = true;
 
-static const char INITIAL[] = "output.txt";
-static const char OUTPUT[] = "encrypted2.txt";
+static const char INITIAL[] = "input.txt";
+static const char OUTPUT[] = "output.txt";
 static const int MAXSIZE = 8192; // 2^13
 
 int main(int argc, char* argv[]) {
@@ -25,7 +25,10 @@ int main(int argc, char* argv[]) {
 	// Create pointer arrays for use later on
 	bool* L = new bool[32];
 	bool* R = new bool[32];
-	bool* key = new bool[64];
+	bool* []key = new bool*[3];
+	for (int i = 0; i < 3; ++i) {
+		key[i] = new bool[64];
+	}
 	char* allOfTheText;
 	char* partOfTheText;
 	int* count_vec = new int[num_cores];
@@ -33,8 +36,10 @@ int main(int argc, char* argv[]) {
 	
 	
 	// Declare the key
-	for (int i = 0; i < 64; ++i) {
-		key[i] = 0;
+	for (int j = 0; j < 3; ++j) {
+		for (int i = 0; i < 64; ++i) {
+			key[j][i] = 0;
+		}
 	}
 	
 	// Set up the file stream
@@ -76,7 +81,9 @@ int main(int argc, char* argv[]) {
 		for (int j = 0; j < perCoreMemory / 8.0; ++j) {
 			readIn(&partOfTheText[j*8], &inFile);
 			generateLR(L, R, &partOfTheText[j*8]);
-			applyDES(L, R, key, ENCRYPT);
+			applyDES(L, R, key[1], ENCRYPT);
+			applyDES(L, R, key[2], ENCRYPT);
+			applyDES(L, R, key[3], ENCRYPT);
 			generateText(L, R, &partOfTheText[j*8]);
 		}
 		
@@ -123,13 +130,14 @@ int main(int argc, char* argv[]) {
 	// Find the proper place in the file for a given core and iteration
 	inFile.seekg(fileLocation + offset_vec[my_rank],
 				 inFile.beg);
-	cout << length << ", " << totalCharactersLeft << ", " << offset_vec[my_rank] << ", ";
-	cout << inFile.tellg() << endl;			 
+				 
 	// Apply the encryption
 	for (int j = 0; j < count_vec[my_rank] / 8.0; ++j) {
 		readIn(&partOfTheText[j*8], &inFile);
 		generateLR(L, R, &partOfTheText[j*8]);
-		applyDES(L, R, key, ENCRYPT);
+		applyDES(L, R, key[1], ENCRYPT);
+		applyDES(L, R, key[2], ENCRYPT);
+		applyDES(L, R, key[3], ENCRYPT);
 		generateText(L, R, &partOfTheText[j*8]);
 	}
 	
@@ -147,6 +155,9 @@ int main(int argc, char* argv[]) {
 	delete [] partOfTheText;
 	delete [] L;
 	delete [] R;
+	for (int i = 0; i < 3; ++i) {
+		delete [] key;
+	}
 	delete [] key;
 	delete [] count_vec;
 	delete [] offset_vec;
