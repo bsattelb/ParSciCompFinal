@@ -34,12 +34,17 @@ int main(int argc, char* argv[]) {
 	outFile.open(outputFile, ios::binary);
 	
 	// Read in, encrypt, and write out
-	for (int i = 0; i < (length / 8.0); ++i) {
-		readIn(text, &inFile);
-		generateLR(L, R, text);
-		applyDES(L, R, key, ENCRYPT);
-		generateText(L, R, text);
-		outFile.write(text, 8);
+	int i;
+	#pragma omp parallel private(i, L, R, text, inFile)
+	{
+		#pragma omp for
+		for (i = 0; i < (length / 8.0); ++i) {
+			readIn(text, &inFile);
+			generateLR(L, R, text);
+			applyDES(L, R, key, ENCRYPT);
+			generateText(L, R, text);
+			outFile.write(text, 8);
+		}
 	}
 	
 	delete [] L;

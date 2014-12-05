@@ -1,19 +1,19 @@
 CC = g++
 mpi = mpicxx
 
-all: fullySequential simplyParallel bruteParallel openMPMain
+all: fullySequential MPIencryption bruteParallel openMPencryption
 
-fullySequential: fullySequential.o desSequentialAlgorithm.o fileAndConversion.o
-	$(CC) -o fullySequential fullySequential.o desSequentialAlgorithm.o fileAndConversion.o
+fullySequential: fullySequential.o DES.o fileAndConversion.o
+	$(CC) -o fullySequential fullySequential.o DES.o fileAndConversion.o
 
-simplyParallel: simplyParallel.o fileAndConversion.o desSequentialAlgorithm.o
-	$(mpi) -o simplyParallel simplyParallel.o fileAndConversion.o desSequentialAlgorithm.o
+MPIencryption: MPIencryption.o fileAndConversion.o DES.o
+	$(mpi) -o MPIencryption MPIencryption.o fileAndConversion.o DES.o
 
-openMPMain: openMPMain.o fileAndConversion.o desSequentialAlgorithm.o
-	$(CC) -fopenmp -o openMPMain openMPMain.o fileAndConversion.o desSequentialAlgorithm.o
+openMPencryption: openMPencryption.o fileAndConversion.o DES.o
+	$(CC) -fopenmp -o openMPencryption openMPencryption.o fileAndConversion.o DES.o
 	
-bruteParallel: desSequentialAlgorithm.o fileAndConversion.o bruteForceParallel.o
-	$(mpi) -o bruteParallel desSequentialAlgorithm.o fileAndConversion.o bruteForceParallel.o
+bruteParallel: DES.o fileAndConversion.o bruteForceParallel.o
+	$(mpi) -o bruteParallel DES.o fileAndConversion.o bruteForceParallel.o
 
 fullySequential.o: fullySequential.cpp
 	$(CC) -c fullySequential.cpp
@@ -21,20 +21,20 @@ fullySequential.o: fullySequential.cpp
 bruteForce.o: bruteForce.cpp
 	$(CC) -c bruteForce.cpp
 	
-desSequentialAlgorithm.o: desSequentialAlgorithm.cpp
-	$(CC) -c desSequentialAlgorithm.cpp
+DES.o: DES.cpp
+	$(CC) -c DES.cpp
 	
 fileAndConversion.o: fileAndConversion.cpp
 	$(CC) -c fileAndConversion.cpp
 
-simplyParallel.o: simplyParallel.cpp
-	$(mpi) -c simplyParallel.cpp
+MPIencryption.o: MPIencryption.cpp
+	$(mpi) -c MPIencryption.cpp
 
-openMPMain.o: openMPMain.cpp
-	$(CC) -fopenmp -c openMPMain.cpp
+openMPencryption.o: openMPencryption.cpp
+	$(CC) -fopenmp -c openMPencryption.cpp
 
 bruteForceParallel.o: bruteForceParallel.cpp
 	$(mpi) -c bruteForceParallel.cpp	
 	
 clean:
-	rm -rf *.o fullySequential bruteForce simplyParallel openMPMain bruteParallel
+	rm -rf *.o fullySequential bruteForce MPIencryption openMPencryption bruteParallel

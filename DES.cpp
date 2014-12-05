@@ -1,5 +1,5 @@
 #include <cmath>
-#include "desSequentialAlgorithm.h"
+#include "DES.h"
 #include <iostream>
 
 using namespace std;

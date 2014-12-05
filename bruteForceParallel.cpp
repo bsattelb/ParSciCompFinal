@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <cmath>
-#include "desSequentialAlgorithm.h"
+#include "DES.h"
 #include "fileAndConversion.h"
 
 static const bool timing = true;

@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <cmath>
-#include "desSequentialAlgorithm.h"
+#include "DES.h"
 #include "fileAndConversion.h"
 
 
@@ -103,6 +103,9 @@ int main(int argc, char* argv[]) {
 	// Create count and offset vectors
 	// Calculate the remaining characters
 	int totalCharactersLeft = length - MAXSIZE * (iterations - 1);
+	if (totalCharactersLeft%8 != 0) {
+		totalCharactersLeft += 8 - totalCharactersLeft%8;
+	}
 	// Calculate the number of characters per core
 	perCoreMemory = totalCharactersLeft / num_cores;
 	// Calculate the number of characters given to the last core
