@@ -17,4 +17,7 @@ MPIencryption encrypts from input.png to output.txt
 	Input and output files are similarly changed
 MPI3DES works the same as MPIencryption
 
+On Mio, the encryption algorithms do not fully output to the text files,
+so tests were run on Sayers as well to ensure that the timing values were reasonable.
+
 encrypted.txt and input.txt are attatched
