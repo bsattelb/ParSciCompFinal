@@ -9,10 +9,10 @@
 
 using namespace std;
 
-static const bool ENCRYPT = false;
+static const bool ENCRYPT = true;
 
-static const char INITIAL[] = "output.txt";
-static const char OUTPUT[] = "encrypted2.txt";
+static const char INITIAL[] = "input.png";
+static const char OUTPUT[] = "output.txt";
 static const int MAXSIZE = 8192; // 2^13
 
 int main(int argc, char* argv[]) {
@@ -122,9 +122,7 @@ int main(int argc, char* argv[]) {
 	
 	// Find the proper place in the file for a given core and iteration
 	inFile.seekg(fileLocation + offset_vec[my_rank],
-				 inFile.beg);
-	cout << length << ", " << totalCharactersLeft << ", " << offset_vec[my_rank] << ", ";
-	cout << inFile.tellg() << endl;			 
+				 inFile.beg);		 
 	// Apply the encryption
 	for (int j = 0; j < count_vec[my_rank] / 8.0; ++j) {
 		readIn(&partOfTheText[j*8], &inFile);

@@ -1,5 +1,5 @@
 #!/bin/bash -x
-#SBATCH --job-name="DES_MPI_Decryption1"
+#SBATCH --job-name="3DES_MPI_Encryption"
 #SBATCH --nodes=16
 #SBATCH --ntasks-per-node=8
 #Multiply nn and xx (denoted below as nn*xx) and use that in the line
@@ -7,8 +7,8 @@
 #SBATCH --exclusive
 #SBATCH --export=ALL
 #SBATCH --time=00:59:59
-#SBATCH -o bruteParallel128.out
-#SBATCH -e bruteParallel128.err
+#SBATCH -o MPI3encryption128.out
+#SBATCH -e MPI3encryption128.err
 # Go to the directoy from which our job was launched
 cd $SLURM_SUBMIT_DIR
 # Create a short JOBID base on the one provided by the scheduler
@@ -21,5 +21,5 @@ printenv > env.$JOBID
 # The standard output file will end up in the directory
 # from which the job was launched.
 echo "running job"
-srun bruteParallel
+srun MPI3DES
 echo "job has finished"

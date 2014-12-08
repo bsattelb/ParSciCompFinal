@@ -1,14 +1,14 @@
 #!/bin/bash -x
 #SBATCH --job-name="DES_MPI_Encryption"
-#SBATCH --nodes=16
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
 #Multiply nn and xx (denoted below as nn*xx) and use that in the line
-#SBATCH --ntasks=128
+#SBATCH --ntasks=8
 #SBATCH --exclusive
 #SBATCH --export=ALL
 #SBATCH --time=00:59:59
-#SBATCH -o MPIencryption128.out
-#SBATCH -e MPIencryption128.err
+#SBATCH -o MPIencryption8.out
+#SBATCH -e MPIencryption8.err
 # Go to the directoy from which our job was launched
 cd $SLURM_SUBMIT_DIR
 # Create a short JOBID base on the one provided by the scheduler

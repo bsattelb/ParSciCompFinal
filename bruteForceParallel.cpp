@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 	bool temp = false;
 	int num_keys = pow(2,paritiesIncorrect * 7)/num_cores;
 	bool isBreak;
-  
+
 	for(int key = my_rank*num_keys; key < my_rank*num_keys+num_keys; ++key) {
 		for (int i = 0; i < 64; ++i) {
 			if (i % 8 == 7) {}
@@ -65,8 +65,8 @@ int main(int argc, char* argv[]) {
 			generateText(L, R, text);
 			
 			temp = true;
-			for (int i = 0; i < 8; ++i) {
-				temp = temp && text[i] == signature[i];
+			for (int j = 0; j < 8; ++j) {
+				temp = temp && text[j] == signature[j];
 			}
 			if (temp && !timing) {
 				break;
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
 		double time = end_time - begin_time;
 		cout << "Time taken: " << time << endl;
 	}
-
+	
 	MPI::Finalize();
 	return 0;
 }

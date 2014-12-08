@@ -1,7 +1,7 @@
 CC = g++
 mpi = mpicxx
 
-all: fullySequential MPIencryption bruteParallel openMPencryption
+all: fullySequential MPIencryption bruteParallel openMPbruteForce MPI3DES
 
 fullySequential: fullySequential.o DES.o fileAndConversion.o
 	$(CC) -o fullySequential fullySequential.o DES.o fileAndConversion.o
@@ -9,12 +9,16 @@ fullySequential: fullySequential.o DES.o fileAndConversion.o
 MPIencryption: MPIencryption.o fileAndConversion.o DES.o
 	$(mpi) -o MPIencryption MPIencryption.o fileAndConversion.o DES.o
 
-openMPencryption: openMPencryption.o fileAndConversion.o DES.o
-	$(CC) -fopenmp -o openMPencryption openMPencryption.o fileAndConversion.o DES.o
+MPI3DES: MPI3DES.o fileAndConversion.o DES.o
+	$(mpi) -o MPI3DES MPI3DES.o fileAndConversion.o DES.o
 	
 bruteParallel: DES.o fileAndConversion.o bruteForceParallel.o
 	$(mpi) -o bruteParallel DES.o fileAndConversion.o bruteForceParallel.o
+	
+openMPbruteForce: openMPbruteForce.o fileAndConversion.o DES.o
+	$(CC) -o openMPbruteForce -fopenmp openMPbruteForce.o fileAndConversion.o DES.o
 
+	
 fullySequential.o: fullySequential.cpp
 	$(CC) -c fullySequential.cpp
 	
@@ -30,11 +34,14 @@ fileAndConversion.o: fileAndConversion.cpp
 MPIencryption.o: MPIencryption.cpp
 	$(mpi) -c MPIencryption.cpp
 
-openMPencryption.o: openMPencryption.cpp
-	$(CC) -fopenmp -c openMPencryption.cpp
+MPI3DES.o: MPI3DES.cpp
+	$(mpi) -c MPI3DES.cpp
 
 bruteForceParallel.o: bruteForceParallel.cpp
-	$(mpi) -c bruteForceParallel.cpp	
+	$(mpi) -c bruteForceParallel.cpp
+
+openMPbruteForce.o: openMPbruteForce.cpp
+	$(CC) -fopenmp -c openMPbruteForce.cpp
 	
 clean:
-	rm -rf *.o fullySequential bruteForce MPIencryption openMPencryption bruteParallel
+	rm -rf *.o fullySequential bruteForce MPIencryption openMPencryption bruteParallel openMPbruteForce
