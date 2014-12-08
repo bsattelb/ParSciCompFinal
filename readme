@@ -11,6 +11,7 @@ MPI programs use mpicxx.
 Slurm files exist to run MPIencryption, bruteParallel, and openMPbruteForce on Mio.
 
 bruteForce reads from "encrypted.txt" and searches for the string 'aaaaaaaa'
+	Changing from timing to finding a key as quickly as possible is changed through a global variable
 openMPbruteForce works equivalently
 MPIencryption encrypts from input.png to output.txt
 	Changing from encryption to decryption is changed by changing a global variable
