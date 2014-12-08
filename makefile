@@ -44,4 +44,4 @@ openMPbruteForce.o: openMPbruteForce.cpp
 	$(CC) -fopenmp -c openMPbruteForce.cpp
 	
 clean:
-	rm -rf *.o fullySequential bruteForce MPIencryption openMPencryption bruteParallel openMPbruteForce
+	rm -rf *.o fullySequential bruteForce MPIencryption openMPencryption bruteParallel openMPbruteForce MPI3DES

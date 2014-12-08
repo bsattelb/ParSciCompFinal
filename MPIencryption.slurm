@@ -7,8 +7,8 @@
 #SBATCH --exclusive
 #SBATCH --export=ALL
 #SBATCH --time=00:59:59
-#SBATCH -o MPIencryption8.out
-#SBATCH -e MPIencryption8.err
+#SBATCH -o MPIencryption.out
+#SBATCH -e MPIencryption.err
 # Go to the directoy from which our job was launched
 cd $SLURM_SUBMIT_DIR
 # Create a short JOBID base on the one provided by the scheduler

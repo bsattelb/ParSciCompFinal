@@ -11,7 +11,7 @@ using namespace std;
 
 static const bool ENCRYPT = true;
 
-static const char INITIAL[] = "input.txt";
+static const char INITIAL[] = "input.png";
 static const char OUTPUT[]  = "output.txt";
 static const int MAXSIZE = 8192; // 2^13
 
@@ -156,7 +156,7 @@ int main(int argc, char* argv[]) {
 	delete [] L;
 	delete [] R;
 	for (int i = 0; i < 3; ++i) {
-		delete [] key;
+		delete [] key[i];
 	}
 	delete [] key;
 	delete [] count_vec;

@@ -1,0 +1,20 @@
+running 'make' will create executables for the 
+	Sequential program	- fullySequential
+	MPI Encryption    	- MPIencryption
+	MPI 3DES Encryption	- MPI3DES
+	MPI Brute Force    	- bruteParallel
+	OpenMP Brute Force 	- openMPbruteForce
+
+The gnu compiler g++ is used for non-MPI programs (with the -fopenmp flag for openmp).
+MPI programs use mpicxx.
+
+Slurm files exist to run MPIencryption, bruteParallel, and openMPbruteForce on Mio.
+
+bruteForce reads from "encrypted.txt" and searches for the string 'aaaaaaaa'
+openMPbruteForce works equivalently
+MPIencryption encrypts from input.png to output.txt
+	Changing from encryption to decryption is changed by changing a global variable
+	Input and output files are similarly changed
+MPI3DES works the same as MPIencryption
+
+encrypted.txt and input.txt are attatched

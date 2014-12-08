@@ -1,5 +1,5 @@
 #!/bin/bash -x
-#SBATCH --job-name="DES_MPI_Decryption1"
+#SBATCH --job-name="DES_Brute_Force_Decryption"
 #SBATCH --nodes=16
 #SBATCH --ntasks-per-node=8
 #Multiply nn and xx (denoted below as nn*xx) and use that in the line
@@ -7,8 +7,8 @@
 #SBATCH --exclusive
 #SBATCH --export=ALL
 #SBATCH --time=00:59:59
-#SBATCH -o bruteParallel128.out
-#SBATCH -e bruteParallel128.err
+#SBATCH -o bruteParallel.out
+#SBATCH -e bruteParallel.err
 # Go to the directoy from which our job was launched
 cd $SLURM_SUBMIT_DIR
 # Create a short JOBID base on the one provided by the scheduler
